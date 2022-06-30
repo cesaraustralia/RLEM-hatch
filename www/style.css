@@ -5,7 +5,7 @@
 }
 
 #submit {
-  margin-top: 2rem;
+  margin-top: 1rem;
   margin-bottom: 2rem;
   height: 3.5rem;
 }
@@ -21,8 +21,31 @@
   margin-left:1rem;
 }
 
+#prediction {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+#predictiontext {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
 #hatchtext {
+  font-weight:600;
   font-size: clamp(2rem, 3vw, 4rem); ;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .flex-center {
@@ -30,6 +53,7 @@
   margin:0;
   display: flex;
   justify-content: center;
+  align-items: center;
   flex-wrap: wrap;
 }
 

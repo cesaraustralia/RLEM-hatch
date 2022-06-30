@@ -15,14 +15,18 @@ ui <- fluidPage(
   tags$head(
     tags$link(rel = "stylesheet", type = "text/css", href = "style.css")
   ),
-  tags$div(class="flex-center",
-  titlePanel("RLEM hatch tool"),
+  tags$div(class="flex-column",
+    titlePanel("RLEM hatch tool"),
+    tags$em( "Predict if mites are hatched, unhatched, or soon-to-hatch using current climate data."),
+    HTML("<br>"),
   ),
   tabsetPanel(
     # selected = "About",
     tabPanel(
       "Estimate",
-      tags$div(class="flex-center",
+      tags$div(
+        class="flex-center",
+        HTML("<br><br>"),
         selectizeInput(
           inputId = 'location',
           label = '',
@@ -34,8 +38,9 @@ ui <- fluidPage(
         actionButton("submit", "Estimate hatch"),
        
       ),
-      tags$div(class="flex-center",
-                htmlOutput("hatchpred"),
+      tags$div(
+        class="flex-center",
+        htmlOutput("hatchpred"),
         plotOutput("hatchplot")
       ),
       column(
@@ -58,7 +63,8 @@ ui <- fluidPage(
                   
                 </div>'),
               HTML(about),
-              tags$div(class="flex-center",
+              tags$div(class="flex-column",
+                htmlOutput("hatchtabletitle"),
                 tableOutput("hatchtable"),
                 plotOutput("climateplot")
               )

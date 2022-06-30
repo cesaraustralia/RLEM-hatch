@@ -105,23 +105,41 @@ server <- function(session, input, output) {
     if (length(VALUES$hatchdate) == 0) {
       VALUES$hatchdate = NULL
     }
-
+  
     
   })  
   
   output$hatchpred = renderText({
     if(VALUES$valid_submission){
-    message("render hatch estimate text")
-
-      ifelse(
-        !is.null(VALUES$hatchdate),
-        sprintf("<div id='hatchtext'>Hatch predicted on %s</div>",
-                format(VALUES$hatchdate, "%d %B")),
-        "Rainfall and temperature conditions required for hatching have not been met for this year to date"
-      )
+      message("render hatch estimate text")
+      isolate({loc=input$location})
+      if(is.null(VALUES$hatchdate)){
+        hatchstatus = "UNHATCHED"
+        hatchdate="Rainfall and temperature conditions not yet met"
+      } else if(VALUES$hatchdate <= Sys.Date()) {
+        hatchstatus = "HATCHED"
+        hatchdate=format(VALUES$hatchdate, "%d %B %Y")
+      } else if(VALUES$hatchdate > Sys.Date()) {
+        hatchstatus = "SOON TO HATCH"
+        hatchdate=format(VALUES$hatchdate, "%d %B %Y")
+      } else {return("ERROR")}
+      
+      
+      template = "
+          <hr>
+          <div id='prediction'>
+            <div id='hatchtext'>%s\n</div> 
+            <div id='predictiontext'>
+              <div>Predicted hatch date:</div>
+              <div>%s</div>
+            <div>%s</div>
+            </div>
+          </div>
+          <hr>"
+  
+        sprintf(template, hatchstatus, hatchdate, loc)
     }
   })
-
 
   output$climateplot <- renderPlot( {
     input$submit
@@ -129,8 +147,8 @@ server <- function(session, input, output) {
       message("plot climatic data for current year")
       plottitle = ifelse(
         !is.null(VALUES$hatchdate),
-        sprintf("Hatch predicted on %s",
-                format(VALUES$hatchdate, "%d %B")),
+        sprintf("For %s hatch predicted on %s",
+                format(VALUES$hatchdate, "%Y"), format(VALUES$hatchdate, "%d %B")),
         "Rainfall and temperature conditions required for hatching have not been met for this year to date"
       )
 
@@ -168,7 +186,24 @@ server <- function(session, input, output) {
 
     }
   })
-
+  
+  output$hatchtabletitle = renderText({
+    if(VALUES$valid_submission){
+      message("render table title")
+      isolate({loc=input$location})
+      template = "
+          <p>
+            <b>Detailed hatch information for %s\n</b> 
+          </p>
+      <br><br>"
+      
+      sprintf(template, loc)
+    } else {
+      "<p><b>Select and submit location in 'Estimate' tab to show details here</b></p>"
+    }
+  })
+  
+  
   output$hatchtable <- renderTable({
     input$submit
     if (VALUES$valid_submission) {
@@ -183,7 +218,7 @@ server <- function(session, input, output) {
     }
   })
 
-  output$hatchplot <- renderPlot(height=200, {
+  output$hatchplot <- renderPlot(height=240, {
     message("make hatch plot")
     input$submit
     if (VALUES$valid_submission) {
@@ -237,14 +272,14 @@ server <- function(session, input, output) {
                    family="serif", label.size = NA,
                    label="95%") +
 
-        scale_y_continuous(limits = c(-0, 2.5), expand=c(0,0)) +
+        scale_y_continuous(limits = c(-0, 1.75), expand=c(0,0)) +
         scale_x_date(date_labels = "%d %b",
                      date_breaks = "2 weeks",
                      # breaks = months,
                      # limits = c(min(months), max(months)),
                      expand=c(0,0)) +
         scale_fill_gradient(low="white", high="darkgrey") +
-        # ggtitle() +
+        ggtitle("\nHistorical Hatch Probability") +
         # theme_void() +
         theme_bw() +
         theme(
@@ -255,13 +290,12 @@ server <- function(session, input, output) {
           panel.border = element_blank(),
           axis.text.y = element_blank(),
           axis.text.x = element_text(size=10, angle=45, hjust=0.5, vjust=0.5),
-          axis.title.x = element_text(size=14, color="#333333"),
+          axis.title.x = element_blank(),
           axis.ticks.y = element_blank(),
           # axis.title.x = element_blank(),
           axis.title.y = element_blank()
         ) +
-        guides(fill="none") +
-        xlab("\nHistorical Hatch Probability")
+        guides(fill="none")
 
     }
   })
