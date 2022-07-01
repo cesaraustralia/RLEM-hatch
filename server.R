@@ -28,13 +28,6 @@ server <- function(session, input, output) {
     valid_submission = FALSE
   )
   
-  updateSelectizeInput(
-    session,
-    "location",
-    choices = postcode$loc,
-    selected = '',
-    server = TRUE
-  )
   observeEvent(input$submit,{
     message("validating location submission")
     if(input$location %in% postcode$loc){
@@ -110,25 +103,29 @@ server <- function(session, input, output) {
   })  
   
   output$hatchpred = renderText({
+    input$submit
     if(VALUES$valid_submission){
       message("render hatch estimate text")
-      isolate({loc=input$location})
-      if(is.null(VALUES$hatchdate)){
-        hatchstatus = "UNHATCHED"
-        hatchdate="Rainfall and temperature conditions not yet met"
-      } else if(VALUES$hatchdate <= Sys.Date()) {
-        hatchstatus = "HATCHED"
-        hatchdate=format(VALUES$hatchdate, "%d %B %Y")
-      } else if(VALUES$hatchdate > Sys.Date()) {
-        hatchstatus = "SOON TO HATCH"
-        hatchdate=format(VALUES$hatchdate, "%d %B %Y")
-      } else {return("ERROR")}
-      
-      
-      template = "
+      isolate({
+        loc=input$location
+        if(is.null(VALUES$hatchdate)) {
+          hatchstatus = "UNHATCHED"
+          hatchdate = "Rainfall and temperature conditions not yet met"
+        } else if (VALUES$hatchdate <= Sys.Date()) {
+          hatchstatus = "HATCHED"
+          hatchdate = format(VALUES$hatchdate, "%d %B %Y")
+        } else if (VALUES$hatchdate > Sys.Date()) {
+          hatchstatus = "SOON TO HATCH"
+          hatchdate = format(VALUES$hatchdate, "%d %B %Y")
+        } else {
+          return("ERROR")
+        }
+        
+        
+        template = "
           <hr>
           <div id='prediction'>
-            <div id='hatchtext'>%s\n</div> 
+            <div id='hatchtext'>%s\n</div>
             <div id='predictiontext'>
               <div>Predicted hatch date:</div>
               <div>%s</div>
@@ -136,8 +133,9 @@ server <- function(session, input, output) {
             </div>
           </div>
           <hr>"
-  
+        
         sprintf(template, hatchstatus, hatchdate, loc)
+      })
     }
   })
 
@@ -219,9 +217,9 @@ server <- function(session, input, output) {
   })
 
   output$hatchplot <- renderPlot(height=240, {
-    message("make hatch plot")
     input$submit
     if (VALUES$valid_submission) {
+    message("make hatch plot")
       d = VALUES$hatch_est
       cyear = format(Sys.Date(), "%Y")
       date0 = as.Date(paste0(cyear, "-01-01")) - 1
@@ -299,5 +297,13 @@ server <- function(session, input, output) {
 
     }
   })
+  
+  updateSelectizeInput(
+    session,
+    "location",
+    choices = postcode$loc,
+    selected = '',
+    server = TRUE
+  )
   
 }

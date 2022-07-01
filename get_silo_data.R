@@ -12,7 +12,7 @@ get_silo_data = function(
     username="john.doe@xyz.com.au",
     password="silo"
   )
-  res <- httr::GET("https://www.longpaddock.qld.gov.au/cgi-bin/silo/DataDrillDataset.php", query=params)
+  res <- GET("https://www.longpaddock.qld.gov.au/cgi-bin/silo/DataDrillDataset.php", query=params)
   # browser()
   silodata <- readr::read_csv(httr::content(res, as="text")) 
   silodata$jday = format(silodata$`YYYY-MM-DD`, "%j") 
