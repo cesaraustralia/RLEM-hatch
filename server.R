@@ -6,12 +6,13 @@ library(httr)
 source("calc_hatch_function.R")
 source("get_silo_data.R")
 
-# data prepration ---------------------------------------------------------
+# data preparation ---------------------------------------------------------
 # global function
 
 postcode = read_csv("australian_postcodes.csv") %>%
   # head %>%
   filter(state!="NT") %>%
+  filter(lon != 0) %>%
   mutate(loc = paste(locality, state, postcode)) %>%
   distinct(loc, lon, lat)
 
@@ -28,17 +29,15 @@ server <- function(session, input, output) {
     valid_submission = FALSE
   )
   
-  observeEvent(input$submit,{
+  # run simulation and update the click and marker without changing zoom and reloading
+  observeEvent(input$submit, {
     message("validating location submission")
     if(input$location %in% postcode$loc){
       VALUES$valid_submission = TRUE
     } else {
       VALUES$valid_submission = FALSE
     }
-  })
-  
-  # run simulation and update the click and marker without changing zoom and reloading
-  observeEvent(input$submit, {
+    
     if(VALUES$valid_submission) {
       message("getting climate data and estimating  hatch")
       # browser()
