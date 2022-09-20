@@ -50,7 +50,7 @@ dsum = d %>%
   mutate(obs_pred_diff = observed_hatch - hatch) %>%
   mutate(year = '2022') %>% 
   select(year, Longitude, Latitude, obs_pred_diff)
-
+dsum
 # plot obs vs pred
 dsum %>% 
   mutate(predicted_hatch = hatch) %>%
@@ -71,6 +71,13 @@ d2 = "data/RLEM hatch timing validation McDonald 2015.csv" %>%
   select(year, Longitude, Latitude, obs_pred_diff) %>% 
   bind_rows(dsum) %>% 
   st_as_sf(coords = c("Longitude","Latitude"), crs=4326)
+
+sum(d2$year==2022)
+sum(d2$year!=2022)
+min(d2$obs_pred_diff, na.rm=TRUE)
+max(d2$obs_pred_diff, na.rm=TRUE)
+mean(d2$obs_pred_diff, na.rm=TRUE)
+sd(d2$obs_pred_diff, na.rm=TRUE)/sqrt(length(d2))
 
 
 aus = "C:/Users/james/Dropbox (Personal)/Maps/Australia by state ABS/STE11aAust.shp" %>% 
